@@ -1,7 +1,5 @@
 # A basic apache server. To use either add or bind mount content under /var/www
 FROM ubuntu:12.04
-ENV http_proxy 'http://53.244.203.30:3128'
-ENV https_proxy 'http://53.244.203.30:3128'
 
 MAINTAINER Kimbro Staken version: 0.1
 
