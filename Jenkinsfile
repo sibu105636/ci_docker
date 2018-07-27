@@ -12,7 +12,7 @@ node {
         /* This builds the actual image; synonymous to
          * docker build on the command line */
 
-        app = docker.build("eedc_a_sitripa/apache")
+        app = docker.build("sitripa/apache")
     }
 
     stage('Test image') {
