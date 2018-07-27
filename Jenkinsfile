@@ -35,6 +35,6 @@ node {
     }
   
     stage('Deploy') {
-         bash 'docker run -p 8080:80 -p 8443:443 sitripa/apache:${env.BUILD_NUMBER}'
+         sh 'docker run -p 8080:80 -p 8443:443 sitripa/apache:latest'
     }
 }
