@@ -35,6 +35,6 @@ node {
     }
   
     stage('Deploy') {
-         sh 'docker run -p 8080:80 -p 8443:443 sitripa/apache:latest'
+         sh 'docker run -p 8081:80 -p 8443:443 sitripa/apache:latest'
     }
 }
