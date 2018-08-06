@@ -1,0 +1,33 @@
+pipeline {
+    agent {
+        docker {
+            image 'jenkins-slave:latest'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+
+    stages {
+        stage('Clone repository') {
+        /* Let's make sure we have the repository cloned to our workspace */
+            steps {
+                checkout scm
+          }
+    }
+
+        stage('Build') {
+            steps {
+                script {
+                         docker.build("reg-dhc-int.app.corpintra.net/eedc_a_sitripa/grafana:${env.BUILD_ID}")
+            }
+          }
+        }
+        stage('Push image') {
+            steps {
+                  withDockerRegistry([ credentialsId: "docker-hub-credentials", url: "https://reg-dhc-int.app.corpintra.net" ]) {
+                        sh "docker push reg-dhc-int.app.corpintra.net/eedc_a_sitripa/grafana:${env.BUILD_ID}"
+                }
+           }
+
+        }
+    }
+}
