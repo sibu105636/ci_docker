@@ -1,7 +1,13 @@
+//test3
 pipeline {
+    environment {
+      app= ''
+   }
     agent {
         docker {
-            image 'jenkins-slave:latest'
+            image 'reg-dhc-int.app.corpintra.net/test/jenkins-slave:v3'
+            registryUrl 'https://reg-dhc-int.app.corpintra.net'
+            registryCredentialsId 'docker-hub-credentials'
             args '-v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
@@ -13,21 +19,42 @@ pipeline {
                 checkout scm
           }
     }
+        stage('hack') {
+            steps {
+                    sh "python gitCheckin.py"
+                  }
+             }
 
         stage('Build') {
             steps {
                 script {
-                         docker.build("reg-dhc-int.app.corpintra.net/eedc_a_sitripa/grafana:${env.BUILD_ID}")
+                         app = docker.build("reg-dhc-int.app.corpintra.net/eedc_a_sitripa/grafana:latest")
+                     /*    app = docker.build("reg-dhc.app.corpintra.net/mathaku/grafana:latest-test-1") */
             }
           }
         }
-        stage('Push image') {
+        /*stage('Push image') {
+            agent any
             steps {
-                  withDockerRegistry([ credentialsId: "docker-hub-credentials", url: "https://reg-dhc-int.app.corpintra.net" ]) {
+                       withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'docker-hub-credentialsPassword', usernameVariable: 'docker-hub-credentialsHubUser')]) {
                         sh "docker push reg-dhc-int.app.corpintra.net/eedc_a_sitripa/grafana:${env.BUILD_ID}"
-                }
            }
 
+        } */
+        stage('push image') {
+          steps {
+            script {
+              docker.withRegistry('https://reg-dhc-int.app.corpintra.net', 'docker-hub-credentials') {
+                app.push()
+              }
+            }
+          }
         }
+        stage('deploy') {
+          steps {
+                  /* sh "kubectl delete -f /root/prometheus_integration.yaml" */
+                  sh "kubectl apply  -f /root/prometheus_integration.yaml"
+                }
+            }
     }
 }
